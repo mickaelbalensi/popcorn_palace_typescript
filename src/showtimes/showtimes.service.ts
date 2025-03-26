@@ -1,7 +1,7 @@
 // src/showtimes/showtimes.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThan, LessThan } from 'typeorm';
 import { Showtime } from './entities/showtime.entity';
 import { Movie } from 'src/movies/entities/movie.entity';
 import { Theater } from 'src/theaters/entities/theater.entity';
@@ -22,8 +22,8 @@ export class ShowtimesService {
     const overlappingShowtimes = await this.showtimeRepository.find({
       where: {
         theater: { id: showtimeData.theater.id },
-        start_time: { $lt: showtimeData.end_time },
-        end_time: { $gt: showtimeData.start_time },
+        start_time: LessThan(showtimeData.end_time),
+        end_time: MoreThan(showtimeData.start_time),
       },
     });
 
@@ -43,7 +43,7 @@ export class ShowtimesService {
     this.logger.log(`Attempting to update showtime with ID: ${id}`);
 
     await this.showtimeRepository.update(id, showtimeData);
-    const updatedShowtime = await this.showtimeRepository.findOne(id);
+    const updatedShowtime = await this.showtimeRepository.findOne({ where: { id } });
 
     this.logger.log(`Showtime updated successfully: ${JSON.stringify(updatedShowtime)}`);
     return updatedShowtime;
@@ -52,7 +52,7 @@ export class ShowtimesService {
   async deleteShowtime(id: number) {
     this.logger.log(`Attempting to delete showtime with ID: ${id}`);
 
-    const showtime = await this.showtimeRepository.findOne(id);
+    const showtime = await this.showtimeRepository.findOne({ where: { id } });
     if (!showtime) {
       this.logger.error('Error: Showtime not found!');
       throw new Error('Showtime not found');
@@ -65,7 +65,7 @@ export class ShowtimesService {
   async findShowtimeById(id: number) {
     this.logger.log(`Fetching showtime with ID: ${id}`);
 
-    const showtime = await this.showtimeRepository.findOne(id);
+    const showtime = await this.showtimeRepository.findOne({ where: { id } });
     if (!showtime) {
       this.logger.error('Error: Showtime not found!');
       throw new Error('Showtime not found');
