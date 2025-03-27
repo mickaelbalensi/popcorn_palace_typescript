@@ -17,9 +17,9 @@ import { UsersModule } from './users/users.module';
       password: 'popcorn-palace',
       database: 'popcorn-palace',
       autoLoadEntities: true,
-      synchronize: true, // ⚠️ Set to false in production
+      synchronize: true, 
     }),
-    MoviesModule, 
+    MoviesModule,
     ShowtimesModule,
     TheatersModule,
     BookingModule, 

@@ -15,7 +15,6 @@ export class UsersService {
   async createUser(firstName: string, lastName: string, email: string): Promise<User> {
     this.logger.log(`Attempting to create user with email: ${email}`);
     
-    // Check if the user already exists (e.g., by email)
     const existingUser = await this.userRepository.findOne({ where: { email } });
     if (existingUser) {
       this.logger.error(`User with email ${email} already exists`);
@@ -32,7 +31,6 @@ export class UsersService {
   async getUserIdByName(firstName: string, lastName: string): Promise<string> {
     this.logger.log(`Attempting to get user ID by name: ${firstName} ${lastName}`);
     
-    // Look for the user with the given first and last name
     const user = await this.userRepository.findOne({ where: { firstName, lastName } });
 
     if (!user) {

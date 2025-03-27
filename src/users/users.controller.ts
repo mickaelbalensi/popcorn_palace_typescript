@@ -7,13 +7,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED) // Return 201 when a user is created
+  @HttpCode(HttpStatus.CREATED) // 201
   async createUser(
     @Body() createUserData: { firstName: string; lastName: string; email: string },
   ) {
     const { firstName, lastName, email } = createUserData;
     const user = await this.usersService.createUser(firstName, lastName, email);
-    return { id: user.id }; // You can return the user ID or any other data
+    return { id: user.id }; 
   }
 
   @Get('id/:firstName/:lastName')
@@ -22,6 +22,6 @@ export class UsersController {
     @Param('lastName') lastName: string,
   ) {
     const userId = await this.usersService.getUserIdByName(firstName, lastName);
-    return { id: userId }; // Return user ID as a response
+    return { id: userId }; 
   }
 }

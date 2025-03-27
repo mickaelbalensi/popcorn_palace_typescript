@@ -5,7 +5,6 @@ import { Movie } from './entities/movie.entity';
 @Controller('movies')
 export class MoviesController {
   private readonly logger = new Logger(MoviesController.name);
-
   constructor(private readonly moviesService: MoviesService) {}
 
   @Get('all')
@@ -16,8 +15,7 @@ export class MoviesController {
   @Post()
   @HttpCode(HttpStatus.OK)
   create(@Body() movieData: Partial<Movie>) {
-    this.logger.log('Received movie data:', JSON.stringify(movieData)); // Log incoming data
-
+    this.logger.log('Received movie data:', JSON.stringify(movieData));
     return this.moviesService.create(movieData);
   }
 

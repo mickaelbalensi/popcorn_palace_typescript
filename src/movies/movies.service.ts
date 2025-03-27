@@ -18,10 +18,11 @@ export class MoviesService {
   }
 
   async create(movieData: Partial<Movie>) {
-    this.logger.log('Saving movie to the database:', JSON.stringify(movieData)); // Log before saving
+    this.logger.log('Saving movie to the database:', JSON.stringify(movieData)); 
     try {
-      const savedMovie = await this.movieRepository.save(movieData);
-      this.logger.log('Movie saved successfully:', JSON.stringify(savedMovie)); // Log after saving
+      const movie = this.movieRepository.create(movieData);  
+      const savedMovie = await this.movieRepository.save(movie); 
+      this.logger.log('Movie saved successfully:', JSON.stringify(savedMovie)); 
       return savedMovie;
     } catch (error) {
       this.logger.error('Error saving movie:', error);

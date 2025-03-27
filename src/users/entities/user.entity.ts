@@ -14,5 +14,4 @@ export class User {
   @Column()
   email: string;
 
-  // Add other personal details as needed
 }
