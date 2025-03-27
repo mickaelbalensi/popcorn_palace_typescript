@@ -6,6 +6,7 @@ import { MoviesModule } from './movies/movies.module';
 import { ShowtimesModule } from './showtimes/showtimes.module';
 import { TheatersModule } from './theaters/theaters.module';
 import { BookingModule } from './booking/booking.module';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -21,7 +22,8 @@ import { BookingModule } from './booking/booking.module';
     MoviesModule, 
     ShowtimesModule,
     TheatersModule,
-    BookingModule
+    BookingModule, 
+    UsersModule
   ],
   controllers: [AppController],
   providers: [AppService],

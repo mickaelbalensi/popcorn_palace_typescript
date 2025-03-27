@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Unique } from 'typeorm';
 import { Showtime } from '../../showtimes/entities/showtime.entity';
+import { User } from '../../users/entities/user.entity' 
 
 @Entity()
 @Unique(['showtime', 'seatNumber']) // Ensures no duplicate seat for the same showtime
@@ -13,6 +14,6 @@ export class Booking {
   @Column()
   seatNumber: number;
 
-  @Column()
-  userId: string;
+  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
+  user: User;
 }

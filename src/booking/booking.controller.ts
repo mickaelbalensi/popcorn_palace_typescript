@@ -6,7 +6,7 @@ export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
   @Post()
-  @HttpCode(200) // Explicitly set 200 for successful booking
+  @HttpCode(200) 
   async bookTicket(@Body() bookingData: { showtimeId: number; seatNumber: number; userId: string }) {
     return await this.bookingService.bookTicket(bookingData.showtimeId, bookingData.seatNumber, bookingData.userId);
   }

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Booking } from './entities/booking.entity';
 import { Showtime } from '../showtimes/entities/showtime.entity';
 import { Theater } from '../theaters/entities/theater.entity';
+import { User } from '../users/entities/user.entity'; // Import User entity
 
 @Injectable()
 export class BookingService {
@@ -16,6 +17,8 @@ export class BookingService {
     private readonly showtimeRepository: Repository<Showtime>,
     @InjectRepository(Theater)
     private readonly theaterRepository: Repository<Theater>,
+    @InjectRepository(User) // Inject User repository
+    private readonly userRepository: Repository<User>, 
   ) {}
 
   async bookTicket(showtimeId: number, seatNumber: number, userId: string) {
@@ -48,8 +51,15 @@ export class BookingService {
       throw new ConflictException(`Seat ${seatNumber} is already booked for this showtime`);
     }
 
+    // Fetch user to make sure it exists
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      this.logger.error(`User with ID ${userId} not found`);
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
     // Create and save the new booking
-    const newBooking = this.bookingRepository.create({ showtime, seatNumber, userId });
+    const newBooking = this.bookingRepository.create({ showtime, seatNumber, user });
     await this.bookingRepository.save(newBooking);
 
     this.logger.log(`Booking successful: ${JSON.stringify(newBooking)}`);
