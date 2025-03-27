@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Logger, HttpCode, HttpStatus  } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { Movie } from './entities/movie.entity';
 
@@ -8,25 +8,27 @@ export class MoviesController {
 
   constructor(private readonly moviesService: MoviesService) {}
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.moviesService.findAll();
   }
 
   @Post()
+  @HttpCode(HttpStatus.OK)
   create(@Body() movieData: Partial<Movie>) {
     this.logger.log('Received movie data:', JSON.stringify(movieData)); // Log incoming data
 
     return this.moviesService.create(movieData);
   }
 
-  @Put(':id')
-  update(@Param('id') id: number, @Body() movieData: Partial<Movie>) {
-    return this.moviesService.update(id, movieData);
+  @Post('update/:title')
+  @HttpCode(HttpStatus.OK) 
+  async updateByTitle(@Param('title') title: string, @Body() updateData: Partial<Movie>): Promise<void> {
+    await this.moviesService.updateByTitle(title, updateData);
   }
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.moviesService.delete(id);
+  @Delete(':title')
+  async deleteMovieByTitle(@Param('title') title: string) {
+    await this.moviesService.deleteMovieByTitle(title);
   }
 }

@@ -1,77 +1,164 @@
 // src/showtimes/showtimes.service.ts
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan, LessThan } from 'typeorm';
+import { Repository, LessThan, MoreThan, Not } from 'typeorm';
 import { Showtime } from './entities/showtime.entity';
 import { Movie } from 'src/movies/entities/movie.entity';
 import { Theater } from 'src/theaters/entities/theater.entity';
 
 @Injectable()
 export class ShowtimesService {
-  private readonly logger = new Logger(ShowtimesService.name);
-
   constructor(
     @InjectRepository(Showtime)
     private showtimeRepository: Repository<Showtime>,
+    @InjectRepository(Movie)
+    private movieRepository: Repository<Movie>,
+    @InjectRepository(Theater)
+    private theaterRepository: Repository<Theater>,
   ) {}
 
-  async addShowtime(showtimeData: Partial<Showtime>) {
-    this.logger.log(`Attempting to add new showtime: ${JSON.stringify(showtimeData)}`);
-
-    // Check for overlapping showtimes
+  // Check for overlapping showtimes
+  async checkForOverlap(
+    theaterId: number,
+    startTime: Date,
+    endTime: Date,
+    excludeShowtimeId?: number,
+  ): Promise<boolean> {
     const overlappingShowtimes = await this.showtimeRepository.find({
-      where: {
-        theater: { id: showtimeData.theater.id },
-        start_time: LessThan(showtimeData.end_time),
-        end_time: MoreThan(showtimeData.start_time),
-      },
+      where: [
+        {
+          theater: { id: theaterId },
+          start_time: LessThan(endTime),
+          end_time: MoreThan(startTime),
+          ...(excludeShowtimeId && { id: Not(excludeShowtimeId) }) // Exclude current showtime when updating
+        }
+      ],
+    });
+    return overlappingShowtimes.length > 0;
+  }
+
+  // Add a new showtime
+  async addShowtime(body: { movieId: number; price: number; theater: string; startTime: string; endTime: string }) {
+    const { movieId, price, theater, startTime, endTime } = body;
+    
+    const theaterEntity = await this.theaterRepository.findOne({ where: { name: theater } });
+    const movieEntity = await this.movieRepository.findOne({ where: { id: movieId } });
+
+    // Check if the theater exists
+    if (!theaterEntity) {
+      throw new Error('Theater not found');
+    }
+
+    // Check for overlapping showtimes in the same theater
+    const isOverlapping = await this.checkForOverlap(
+      theaterEntity.id,
+      new Date(startTime),
+      new Date(endTime),
+    );
+    
+    if (isOverlapping) {
+      throw new Error('There are overlapping showtimes for this theater');
+    }
+
+    const newShowtime = this.showtimeRepository.create({
+      movie: movieEntity,
+      theater: theaterEntity,
+      start_time: new Date(startTime),
+      end_time: new Date(endTime),
+      price,
     });
 
-    if (overlappingShowtimes.length > 0) {
-      this.logger.error('Error: Overlapping showtimes detected!');
-      throw new Error('There are overlapping showtimes for this theater.');
+    const showtime = await this.showtimeRepository.save(newShowtime);
+    return {
+      id: showtime.id,
+      price: showtime.price,
+      movieId: showtime.movie.id, 
+      theater: showtime.theater.name, 
+      startTime: showtime.start_time,
+      endTime: showtime.end_time,
+    };
+  }
+
+  // Update an existing showtime
+  async updateShowtime(showtimeId: number, body: { movieId: number; price: number; theater: string; startTime: string; endTime: string }): Promise<Showtime> {
+    const { movieId, price, theater, startTime, endTime } = body;
+    
+    const theaterEntity = await this.theaterRepository.findOne({ where: { name: theater } });
+    const movieEntity = await this.movieRepository.findOne({ where: { id: movieId } });
+
+    // Check if the theater exists
+    if (!theaterEntity) {
+      throw new Error('Theater not found');
     }
 
-    const newShowtime = this.showtimeRepository.create(showtimeData);
-    await this.showtimeRepository.save(newShowtime);
+    // Check for overlapping showtimes in the same theater
+    const isOverlapping = await this.checkForOverlap(
+      theaterEntity.id,
+      new Date(startTime),
+      new Date(endTime),
+      showtimeId,
+    );
 
-    this.logger.log(`Showtime added successfully: ${JSON.stringify(newShowtime)}`);
-    return newShowtime;
-  }
+    if (isOverlapping) {
+      throw new Error('There are overlapping showtimes for this theater');
+    }
 
-  async updateShowtime(id: number, showtimeData: Partial<Showtime>) {
-    this.logger.log(`Attempting to update showtime with ID: ${id}`);
-
-    await this.showtimeRepository.update(id, showtimeData);
-    const updatedShowtime = await this.showtimeRepository.findOne({ where: { id } });
-
-    this.logger.log(`Showtime updated successfully: ${JSON.stringify(updatedShowtime)}`);
-    return updatedShowtime;
-  }
-
-  async deleteShowtime(id: number) {
-    this.logger.log(`Attempting to delete showtime with ID: ${id}`);
-
-    const showtime = await this.showtimeRepository.findOne({ where: { id } });
+    const showtime = await this.showtimeRepository.findOne({ where: { id: showtimeId } });
+    
     if (!showtime) {
-      this.logger.error('Error: Showtime not found!');
       throw new Error('Showtime not found');
     }
 
-    await this.showtimeRepository.remove(showtime);
-    this.logger.log(`Showtime with ID ${id} deleted successfully.`);
+    showtime.movie = movieEntity;
+    showtime.theater = theaterEntity;
+    showtime.start_time = new Date(startTime);
+    showtime.end_time = new Date(endTime);
+    showtime.price = price;
+
+    await this.showtimeRepository.save(showtime);
+
+    return;
   }
 
-  async findShowtimeById(id: number) {
-    this.logger.log(`Fetching showtime with ID: ${id}`);
+  // Delete a showtime
+  async deleteShowtime(showtimeId: number): Promise<void> {
+    await this.showtimeRepository.delete(showtimeId);
+  }
 
-    const showtime = await this.showtimeRepository.findOne({ where: { id } });
+  
+  async getAllShowtimes() {
+  const showtimes = await this.showtimeRepository.find({
+    relations: ['movie', 'theater'], // Load related entities
+  });
+
+  // Return the showtimes in the desired format
+  return showtimes.map(showtime => ({
+    id: showtime.id,
+    price: showtime.price,
+    movieId: showtime.movie.id,
+    theater: showtime.theater.name, // Only the theater name as a string
+    startTime: showtime.start_time,
+    endTime: showtime.end_time,
+  }));
+}
+
+  // Get a showtime by ID
+  async getShowtimeById(showtimeId: number) {
+    const showtime = await this.showtimeRepository.findOne({
+      where: { id: showtimeId },
+    });
+
     if (!showtime) {
-      this.logger.error('Error: Showtime not found!');
       throw new Error('Showtime not found');
     }
 
-    this.logger.log(`Fetched showtime: ${JSON.stringify(showtime)}`);
-    return showtime;
+    return {
+      id: showtime.id,
+      price: showtime.price,
+      movieId: showtime.movie.id,
+      theater: showtime.theater.name, 
+      startTime: showtime.start_time,
+      endTime: showtime.end_time,
+    };
   }
 }

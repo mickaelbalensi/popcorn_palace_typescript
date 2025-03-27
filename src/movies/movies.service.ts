@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Movie } from './entities/movie.entity';
@@ -29,38 +29,35 @@ export class MoviesService {
     }
   }
 
-  // Update movie by ID
-  async update(id: number, movieData: Partial<Movie>) {
-    this.logger.log(`Attempting to update movie with ID: ${id}`);
+  async updateByTitle(title: string, updateData: Partial<Movie>) {
+    this.logger.log(`Attempting to update movie with title: ${title}`);
 
-    const movie = await this.movieRepository.findOne({ where: { id } });
+    const movie = await this.movieRepository.findOne({ where: { title } });
     if (!movie) {
-      this.logger.error(`Movie with ID ${id} not found for update`);
-      throw new Error('Movie not found');
+      this.logger.error(`Movie with title "${title}" not found!`);
+      throw new NotFoundException('Movie not found');
     }
 
-    // Log the movie data before updating
-    this.logger.log(`Current movie data: ${JSON.stringify(movie)}`);
-    Object.assign(movie, movieData);
+    Object.assign(movie, updateData);
+    await this.movieRepository.save(movie);
 
-    const updatedMovie = await this.movieRepository.save(movie);
-    this.logger.log(`Movie updated successfully with ID: ${id}`);
-    this.logger.log(`Updated movie data: ${JSON.stringify(updatedMovie)}`);
-
-    return updatedMovie;
+    this.logger.log(`Movie with title "${title}" updated successfully.`);
+    return movie;
   }
 
-  // Delete movie by ID
-  async delete(id: string) {
-    this.logger.log(`Attempting to delete movie with ID: ${id}`);
+  async deleteMovieByTitle(title: string) {
+    this.logger.log(`Attempting to delete movie with title: ${title}`);
 
-    const result = await this.movieRepository.delete(id);
-    if (result.affected === 0) {
-      this.logger.error(`Movie with ID ${id} not found for deletion`);
-      throw new Error('Movie not found');
+    const movie = await this.movieRepository.findOne({ where: { title } });
+
+    if (!movie) {
+        this.logger.error(`Error: Movie with title "${title}" not found!`);
+        throw new Error('Movie not found');
     }
 
-    this.logger.log(`Movie with ID ${id} deleted successfully`);
-    return { message: 'Movie deleted successfully' };
-  }
+    await this.movieRepository.remove(movie);
+
+    this.logger.log(`Movie with title "${title}" deleted successfully.`);
+    return;
+}
 }
