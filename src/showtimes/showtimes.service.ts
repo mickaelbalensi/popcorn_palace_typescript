@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan, MoreThan, Not } from 'typeorm';
 import { Showtime } from './entities/showtime.entity';
-import { Movie } from 'src/movies/entities/movie.entity';
-import { Theater } from 'src/theaters/entities/theater.entity';
+import { Movie } from '../movies/entities/movie.entity';
+import { Theater } from '../theaters/entities/theater.entity';
 
 @Injectable()
 export class ShowtimesService {

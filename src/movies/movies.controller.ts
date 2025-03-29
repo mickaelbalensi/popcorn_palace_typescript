@@ -1,3 +1,4 @@
+// src/movies/movies.controller.ts
 import { Controller, Get, Post, Delete, Param, Body, Logger, HttpCode, HttpStatus  } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { Movie } from './entities/movie.entity';
