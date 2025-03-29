@@ -173,7 +173,7 @@ it('should throw an error if there are overlapping showtimes', async () => {
     const theater1 = { 
       id: 1, 
       name: 'Theater 1', 
-      address: '123 Theater St', // Add missing fields
+      address: '123 Theater St', 
       max_person: 100 
     };
     const theater2 = { 
@@ -193,7 +193,6 @@ it('should throw an error if there are overlapping showtimes', async () => {
     };
 
     theaterRepository.findOne.mockImplementation((options) => {
-      // Mock implementation with correct handling of `where` field
       if ((options.where as any).name === 'Theater 1') {
         return Promise.resolve(theater1);
       }

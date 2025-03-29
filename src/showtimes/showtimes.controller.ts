@@ -7,7 +7,6 @@ import { ShowtimesService } from './showtimes.service';
 export class ShowtimesController {
   constructor(private readonly showtimesService: ShowtimesService) {}
 
-  // Get showtime by ID
   @Get(':showtimeId')
   async getShowtime(@Param('showtimeId') showtimeId: number) {
     return await this.showtimesService.getShowtimeById(showtimeId);
@@ -18,7 +17,6 @@ export class ShowtimesController {
     return await this.showtimesService.getAllShowtimes();
   }
 
-  // Add a new showtime
   @Post()
   @HttpCode(HttpStatus.OK) 
   async addShowtime(
@@ -27,7 +25,6 @@ export class ShowtimesController {
     return await this.showtimesService.addShowtime(body);
   }
 
-  // Update an existing showtime
   @Post('update/:showtimeId')
   @HttpCode(HttpStatus.OK) 
   async updateShowtime(
@@ -37,7 +34,6 @@ export class ShowtimesController {
     return await this.showtimesService.updateShowtime(showtimeId, body);
   }
 
-  // Delete a showtime
   @Delete(':showtimeId')
   async deleteShowtime(@Param('showtimeId') showtimeId: number) {
     return await this.showtimesService.deleteShowtime(showtimeId);

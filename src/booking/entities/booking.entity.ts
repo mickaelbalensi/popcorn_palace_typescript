@@ -3,7 +3,7 @@ import { Showtime } from '../../showtimes/entities/showtime.entity';
 import { User } from '../../users/entities/user.entity' 
 
 @Entity()
-@Unique(['showtime', 'seatNumber']) // Ensures no duplicate seat for the same showtime
+@Unique(['showtime', 'seatNumber']) 
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;

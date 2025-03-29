@@ -17,7 +17,6 @@ export class ShowtimesService {
     private theaterRepository: Repository<Theater>,
   ) {}
 
-  // Check for overlapping showtimes
   async checkForOverlap(
     theaterId: number,
     startTime: Date,
@@ -30,26 +29,23 @@ export class ShowtimesService {
           theater: { id: theaterId },
           start_time: LessThan(endTime),
           end_time: MoreThan(startTime),
-          ...(excludeShowtimeId && { id: Not(excludeShowtimeId) }) // Exclude current showtime when updating
+          ...(excludeShowtimeId && { id: Not(excludeShowtimeId) }) 
         }
       ],
     });
     return overlappingShowtimes.length > 0;
   }
 
-  // Add a new showtime
   async addShowtime(body: { movieId: number; price: number; theater: string; startTime: string; endTime: string }) {
     const { movieId, price, theater, startTime, endTime } = body;
     
     const theaterEntity = await this.theaterRepository.findOne({ where: { name: theater } });
     const movieEntity = await this.movieRepository.findOne({ where: { id: movieId } });
 
-    // Check if the theater exists
     if (!theaterEntity) {
       throw new Error('Theater not found');
     }
 
-    // Check for overlapping showtimes in the same theater
     const isOverlapping = await this.checkForOverlap(
       theaterEntity.id,
       new Date(startTime),
@@ -79,19 +75,16 @@ export class ShowtimesService {
     };
   }
 
-  // Update an existing showtime
   async updateShowtime(showtimeId: number, body: { movieId: number; price: number; theater: string; startTime: string; endTime: string }): Promise<Showtime> {
     const { movieId, price, theater, startTime, endTime } = body;
     
     const theaterEntity = await this.theaterRepository.findOne({ where: { name: theater } });
     const movieEntity = await this.movieRepository.findOne({ where: { id: movieId } });
 
-    // Check if the theater exists
     if (!theaterEntity) {
       throw new Error('Theater not found');
     }
 
-    // Check for overlapping showtimes in the same theater
     const isOverlapping = await this.checkForOverlap(
       theaterEntity.id,
       new Date(startTime),
@@ -120,7 +113,6 @@ export class ShowtimesService {
     return;
   }
 
-  // Delete a showtime
   async deleteShowtime(showtimeId: number): Promise<void> {
     await this.showtimeRepository.delete(showtimeId);
   }
@@ -128,21 +120,19 @@ export class ShowtimesService {
   
   async getAllShowtimes() {
   const showtimes = await this.showtimeRepository.find({
-    relations: ['movie', 'theater'], // Load related entities
+    relations: ['movie', 'theater'],
   });
 
-  // Return the showtimes in the desired format
   return showtimes.map(showtime => ({
     id: showtime.id,
     price: showtime.price,
     movieId: showtime.movie.id,
-    theater: showtime.theater.name, // Only the theater name as a string
+    theater: showtime.theater.name, 
     startTime: showtime.start_time,
     endTime: showtime.end_time,
   }));
 }
 
-  // Get a showtime by ID
   async getShowtimeById(showtimeId: number) {
     const showtime = await this.showtimeRepository.findOne({
       where: { id: showtimeId },
