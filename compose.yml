@@ -22,10 +22,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    #   movies-service:
-    #     condition: service_healthy
-    #   theaters-service:
-    #     condition: service_healthy
+      # movies-service:
+      #   condition: service_healthy
+      # theaters-service:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "3005"]
       interval: 10s
@@ -74,10 +74,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    #   movies-service:
-    #     condition: service_healthy
-    #   theaters-service:
-    #     condition: service_healthy
+      # movies-service:
+      #   condition: service_healthy
+      # theaters-service:
+      #   condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "3003"]
       interval: 10s
