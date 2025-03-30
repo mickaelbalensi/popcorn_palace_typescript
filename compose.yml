@@ -1,12 +1,98 @@
 version: '3.8'
 
 services:
-  api:
+
+  booking-service:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./booking-service
+      dockerfile: dockerfile
     ports:
-      - "3000:3000"
+      - "3005:3005"  
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=popcorn-palace
+      - DATABASE_PASSWORD=popcorn-palace
+      - DATABASE_NAME=popcorn-palace
+      - SHOWTIMES_SERVICE_URL=http://showtimes-service:3003
+      - THEATERS_SERVICE_URL=http://theaters-service:3002
+      - NODE_ENV=development
+    volumes:
+      - ./booking-service/src:/app/src
+    depends_on:
+      db:
+        condition: service_healthy
+    #   movies-service:
+    #     condition: service_healthy
+    #   theaters-service:
+    #     condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "3005"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - popcorn-network
+  
+  users-service:
+    build:
+      context: ./users-service  
+      dockerfile: dockerfile
+    ports:
+      - "3004:3004"  
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=popcorn-palace
+      - DATABASE_PASSWORD=popcorn-palace
+      - DATABASE_NAME=popcorn-palace
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - popcorn-network
+
+  showtimes-service:
+    build:
+      context: ./showtimes-service
+      dockerfile: dockerfile
+    ports:
+      - "3003:3003"  
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=popcorn-palace
+      - DATABASE_PASSWORD=popcorn-palace
+      - DATABASE_NAME=popcorn-palace
+      - MOVIES_SERVICE_URL=http://movies-service:3001
+      - THEATERS_SERVICE_URL=http://theaters-service:3002
+      - NODE_ENV=development
+    volumes:
+      - ./showtimes-service/src:/app/src
+    depends_on:
+      db:
+        condition: service_healthy
+    #   movies-service:
+    #     condition: service_healthy
+    #   theaters-service:
+    #     condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "3003"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - popcorn-network
+
+  movies-service:
+    build:
+      context: ./movies-service
+      dockerfile: dockerfile
+    ports:
+      - "3001:3001"
     environment:
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
@@ -15,17 +101,43 @@ services:
       - DATABASE_NAME=popcorn-palace
       - NODE_ENV=development
     volumes:
-      - ./src:/app/src
+      - ./movies-service/src:/app/src
     depends_on:
       db:
         condition: service_healthy
-    command: npm run start:dev
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "nc", "-z", "localhost", "3001"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - popcorn-network
+
+  theaters-service:
+    build: 
+      context: ./theaters-service
+      dockerfile: dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=popcorn-palace
+      - DATABASE_PASSWORD=popcorn-palace
+      - DATABASE_NAME=popcorn-palace
+      - NODE_ENV=development
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "3002"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - popcorn-network
 
   db:
     image: postgres
@@ -44,23 +156,12 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - popcorn-network
 
 volumes:
   postgres_data:
 
-# services:
-#   db:
-#     image: postgres
-#     restart: always
-#     environment:
-#       POSTGRES_USER: popcorn-palace
-#       POSTGRES_PASSWORD: popcorn-palace
-#       POSTGRES_DB: popcorn-palace
-#     volumes:
-#       - type: bind
-#         source: ./data
-#         target: /var/lib/postgresql/data 
-#     ports:
-#       - target: 5432
-#         published: 5432
-#         protocol: tcp
+networks:
+  popcorn-network:
+    driver: bridge
