@@ -7,15 +7,16 @@ import { ShowtimesModule } from './showtimes/showtimes.module';
 import { TheatersModule } from './theaters/theaters.module';
 import { BookingModule } from './booking/booking.module';
 import { UsersModule } from './users/users.module';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'popcorn-palace',
-      password: 'popcorn-palace',
-      database: 'popcorn-palace',
+      host: process.env.DATABASE_HOST || 'db', 
+      port: parseInt(process.env.DATABASE_PORT || '5432', 10),
+      username: process.env.DATABASE_USER || 'popcorn-palace',
+      password: process.env.DATABASE_PASSWORD || 'popcorn-palace',
+      database: process.env.DATABASE_NAME || 'popcorn-palace',
       autoLoadEntities: true,
       synchronize: true, 
     }),
