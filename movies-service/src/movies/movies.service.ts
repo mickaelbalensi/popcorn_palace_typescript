@@ -1,5 +1,4 @@
-// movies-service/src/movies/movies.service.ts
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Movie } from './entities/movie.entity';
@@ -27,6 +26,15 @@ export class MoviesService {
   async create(movieData: Partial<Movie>) {
     this.logger.log('Saving movie to the database:', JSON.stringify(movieData)); 
     try {
+      const existingMovie = await this.movieRepository.findOne({ 
+        where: { title: movieData.title } 
+      });
+      
+      if (existingMovie) {
+        this.logger.error(`Movie with title "${movieData.title}" already exists`);
+        throw new ConflictException('Movie with this title already exists');
+      }
+      
       const movie = this.movieRepository.create(movieData);  
       const savedMovie = await this.movieRepository.save(movie); 
       this.logger.log('Movie saved successfully:', JSON.stringify(savedMovie)); 
@@ -60,10 +68,10 @@ export class MoviesService {
 
     if (!movie) {
         this.logger.error(`Error: Movie with title "${title}" not found!`);
-        throw new Error('Movie not found');
+        throw new NotFoundException('Movie not found');
     }
 
-    await this.movieRepository.remove(movie);
+    await this.movieRepository.delete({ id: movie.id });
 
     this.logger.log(`Movie with title "${title}" deleted successfully.`);
     return;
