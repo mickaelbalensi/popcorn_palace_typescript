@@ -2,6 +2,46 @@ version: '3.8'
 
 services:
 
+  admin-front:
+    build:
+      context: ./admin-front  
+      dockerfile: dockerfile
+    ports:
+      - "5174:5173"  
+    volumes:
+      - ./admin-front:/app  
+      - /app/node_modules  
+    environment:
+      - VITE_SHOWTIMES_SERVICE_URL=http://localhost:3003
+      - VITE_MOVIES_SERVICE_URL=http://localhost:3001
+      - VITE_THEATERS_SERVICE_URL=http://localhost:3002
+    depends_on:
+      - theaters-service
+      - movies-service
+      - showtimes-service
+    networks:
+      - popcorn-network
+
+  customer-front:
+    build:
+      context: ./customer-front  
+      dockerfile: dockerfile
+    ports:
+      - "5173:5173"  
+    volumes:
+      - ./customer-front:/app  
+      - /app/node_modules  
+    environment:
+      - VITE_SHOWTIMES_SERVICE_URL=http://localhost:3003
+      - VITE_USERS_SERVICE_URL=http://localhost:3004
+      - VITE_BOOKINGS_SERVICE_URL=http://localhost:3005 
+    depends_on:
+      - booking-service
+      - users-service
+      - showtimes-service
+    networks:
+      - popcorn-network
+
   booking-service:
     build:
       context: ./booking-service

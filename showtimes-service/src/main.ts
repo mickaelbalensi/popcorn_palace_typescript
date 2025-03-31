@@ -8,6 +8,11 @@ async function bootstrap() {
     whitelist: true,
     transform: true,
   }));
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+  });
   await app.listen(process.env.PORT || 3002);
   console.log(`Showtimes service is running on: ${await app.getUrl()}`);
 }

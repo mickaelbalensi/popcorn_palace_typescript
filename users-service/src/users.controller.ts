@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  private readonly logger = new Logger(UsersController.name);  // Instantiate Logger
+  private readonly logger = new Logger(UsersController.name);  
 
   constructor(private readonly usersService: UsersService) {}
 
@@ -14,12 +14,10 @@ export class UsersController {
   ) {
     const { firstName, lastName, email } = createUserData;
     
-    // Log the incoming request
     this.logger.log(`Creating user: ${firstName} ${lastName} with email: ${email}`);
     
     const user = await this.usersService.createUser(firstName, lastName, email);
     
-    // Log after successfully creating the user
     this.logger.log(`User created with ID: ${user.id}`);
     
     return { id: user.id };
@@ -30,12 +28,10 @@ export class UsersController {
     @Param('firstName') firstName: string,
     @Param('lastName') lastName: string,
   ) {
-    // Log the request for getting a user by name
     this.logger.log(`Fetching user ID for: ${firstName} ${lastName}`);
     
     const userId = await this.usersService.getUserIdByName(firstName, lastName);
     
-    // Log after retrieving the user ID
     if (userId) {
       this.logger.log(`Found user ID: ${userId}`);
     } else {

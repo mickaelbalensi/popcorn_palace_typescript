@@ -14,7 +14,7 @@ export class BookingService {
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
-    private readonly httpService: HttpService, // Inject HttpService to make HTTP requests
+    private readonly httpService: HttpService,
     private configService: ConfigService,
   ) {
     this.showtimeServiceUrl = this.configService.get<string>('SHOWTIMES_SERVICE_URL') || 'http://showtime-service:3003';
@@ -24,7 +24,6 @@ export class BookingService {
   async bookTicket(showtimeId: number, seatNumber: number, userId: string) {
     this.logger.log(`Attempting to book seat ${seatNumber} for showtime ${showtimeId} by user ${userId}`);
 
-    // Make HTTP request to the Showtime service to verify if the showtime exists
     let showtime;
     try {
       const showtimeResponse = await firstValueFrom(
@@ -37,7 +36,6 @@ export class BookingService {
       throw new NotFoundException(`Showtime with ID ${showtimeId} not found`);
     }
 
-    // Make HTTP request to the Theater service to get the max_person value
     try {
       const theaterResponse = await firstValueFrom(
         this.httpService.get(`${this.theaterServiceUrl}/theaters/${showtime.theaterId}`)
@@ -49,13 +47,11 @@ export class BookingService {
       throw new NotFoundException(`Theater with ID ${showtime.theaterIdd} not found`);
     }
 
-    // Assuming showtime contains the max_person data
     if (seatNumber > showtime.theater.max_person || seatNumber < 1) {
       this.logger.error(`Invalid seat number ${seatNumber} for theater ${showtime.theaterId} (Max: ${showtime.theater.max_person})`);
       throw new BadRequestException(`Seat number ${seatNumber} exceeds theater capacity (Max: ${showtime.theater.max_person})`);
     }
 
-    // Check for existing booking
     const existingBooking = await this.bookingRepository.findOne({
       where: { showtimeId, seatNumber },
     });
@@ -65,7 +61,6 @@ export class BookingService {
       throw new ConflictException(`Seat ${seatNumber} is already booked for this showtime`);
     }
 
-    // Create new booking
     const newBooking = this.bookingRepository.create({ showtimeId, seatNumber, userId });
     await this.bookingRepository.save(newBooking);
 
