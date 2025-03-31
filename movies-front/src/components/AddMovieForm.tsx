@@ -16,7 +16,7 @@ const AddMovieForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch("http://localhost:3000/movies", {
+    const response = await fetch("http://localhost:3001/movies", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
