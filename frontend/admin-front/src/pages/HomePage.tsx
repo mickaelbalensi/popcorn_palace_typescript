@@ -33,7 +33,7 @@ function HomePage() {
   const deleteMovie = async (title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
       try {
-        const res = await fetch(`${API_URL}/${encodeURIComponent(title)}`, { 
+        const res = await fetch(`${MOVIES_API_URL}/movies/${encodeURIComponent(title)}`, { 
           method: "DELETE" 
         });
         

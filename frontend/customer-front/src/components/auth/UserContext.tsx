@@ -17,7 +17,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  // Save user to localStorage when it changes
   React.useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));

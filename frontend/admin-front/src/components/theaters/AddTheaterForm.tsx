@@ -14,7 +14,6 @@ interface AddTheaterFormProps {
   isUpdate?: boolean;
 }
 
-const MOVIES_API_URL = import.meta.env.VITE_MOVIES_SERVICE_URL || 'http://localhost:3001';
 const THEATERS_API_URL = import.meta.env.VITE_THEATERS_SERVICE_URL || 'http://localhost:3002';
 
 const AddTheaterForm: React.FC<AddTheaterFormProps> = ({ 
