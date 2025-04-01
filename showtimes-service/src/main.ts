@@ -13,7 +13,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
   });
-  await app.listen(process.env.PORT || 3002);
+  await app.listen(process.env.PORT || 3003);
   console.log(`Showtimes service is running on: ${await app.getUrl()}`);
 }
 bootstrap();
