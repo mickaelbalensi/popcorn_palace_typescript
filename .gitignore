@@ -1,6 +1,8 @@
 # compiled output
 dist
+distc
 node_modules
+node_modulesc
 /build
 
 # Logs
@@ -14,6 +16,7 @@ lerna-debug.log*
 
 # data
 data/*
+datac
 
 # OS
 .DS_Store
@@ -57,3 +60,13 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+.eslintrcjs.c
+.prettierrc.c
+dockerfilec.c
+package-lockjson.c
+nodemonjson.c
+tsconfigjson.c
+tsconfig.buildjson.c
+packagejson.c
+nest-clijson.c

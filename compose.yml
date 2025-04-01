@@ -4,12 +4,12 @@ services:
 
   admin-front:
     build:
-      context: ./admin-front  
+      context: ./frontend/admin-front  
       dockerfile: dockerfile
     ports:
       - "5174:5173"  
     volumes:
-      - ./admin-front:/app  
+      - ./frontend/admin-front:/app  
       - /app/node_modules  
     environment:
       - VITE_SHOWTIMES_SERVICE_URL=http://localhost:3003
@@ -24,12 +24,12 @@ services:
 
   customer-front:
     build:
-      context: ./customer-front  
+      context: ./frontend/customer-front  
       dockerfile: dockerfile
     ports:
       - "5173:5173"  
     volumes:
-      - ./customer-front:/app  
+      - ./frontend/customer-front:/app  
       - /app/node_modules  
     environment:
       - VITE_SHOWTIMES_SERVICE_URL=http://localhost:3003
@@ -44,7 +44,7 @@ services:
 
   booking-service:
     build:
-      context: ./booking-service
+      context: ./backend/booking-service
       dockerfile: dockerfile
     ports:
       - "3005:3005"  
@@ -58,7 +58,7 @@ services:
       - THEATERS_SERVICE_URL=http://theaters-service:3002
       - NODE_ENV=development
     volumes:
-      - ./booking-service/src:/app/src
+      - ./backend/booking-service/src:/app/src
     depends_on:
       db:
         condition: service_healthy
@@ -77,7 +77,7 @@ services:
   
   users-service:
     build:
-      context: ./users-service  
+      context: ./backend/users-service  
       dockerfile: dockerfile
     ports:
       - "3004:3004"  
@@ -96,7 +96,7 @@ services:
 
   showtimes-service:
     build:
-      context: ./showtimes-service
+      context: ./backend/showtimes-service
       dockerfile: dockerfile
     ports:
       - "3003:3003"  
@@ -110,7 +110,7 @@ services:
       - THEATERS_SERVICE_URL=http://theaters-service:3002
       - NODE_ENV=development
     volumes:
-      - ./showtimes-service/src:/app/src
+      - ./backend/showtimes-service/src:/app/src
     depends_on:
       db:
         condition: service_healthy
@@ -129,7 +129,7 @@ services:
 
   movies-service:
     build:
-      context: ./movies-service
+      context: ./backend/movies-service
       dockerfile: dockerfile
     ports:
       - "3001:3001"
@@ -141,7 +141,7 @@ services:
       - DATABASE_NAME=popcorn-palace
       - NODE_ENV=development
     volumes:
-      - ./movies-service/src:/app/src
+      - ./backend/movies-service/src:/app/src
     depends_on:
       db:
         condition: service_healthy
@@ -156,7 +156,7 @@ services:
 
   theaters-service:
     build: 
-      context: ./theaters-service
+      context: ./backend/theaters-service
       dockerfile: dockerfile
     ports:
       - "3002:3002"
