@@ -76,6 +76,12 @@ The Popcorn Palace Movie Ticket Booking System is a comprehensive platform built
 |---------------------------|----------------|--------------------------------------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Book a ticket | POST /bookings | { "showtimeId": 1, "seatNumber": 15 , userId:"84438967-f68f-4fa0-b620-0f08217e76af"} | 200 OK | { "bookingId":"d1a6423b-4469-4b00-8c5f-e3cfc42eacae" } |
 
+## Set Up the App
+
+```bash
+# development
+$ docker compose build
+```
 ## Running the app
 
 ```bash
@@ -90,16 +96,25 @@ After running docker compose, the applications will be available at:
 ## Test
 
 ```bash
-# unit tests
+$ cd backend
+
+# 3 unit-tests:
+# 1. for movies-service:
+
+$ cd movies-service
+$ npm install
+$ npm run test
+# 2. booking
+
+$ cd ../booking-service
+$ npm install
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# 3. showtimes
+$ cd ../showtimes-service
+$ npm install
+$ npm run test
 ```
-
 ## Project Structure
 
 ```

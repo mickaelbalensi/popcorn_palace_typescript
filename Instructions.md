@@ -8,6 +8,12 @@
 |------------|------------|
 | ![Left](frontend/admin-front/public/List%20Showtimes.png) | ![Right](frontend/customer-front/public/Movie%20booking.png) |
 
+## Set Up the App
+
+```bash
+# development
+$ docker compose build
+```
 ## Running the app
 
 ```bash
@@ -22,14 +28,24 @@ After running docker compose, the applications will be available at:
 ## Test
 
 ```bash
-# unit tests
+$ cd backend
+
+# 3 unit-tests:
+# 1. for movies-service:
+
+$ cd movies-service
+$ npm install
+$ npm run test
+# 2. booking
+
+$ cd ../booking-service
+$ npm install
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# 3. showtimes
+$ cd ../showtimes-service
+$ npm install
+$ npm run test
 ```
 
 ## Project Structure
